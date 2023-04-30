@@ -1,3 +1,4 @@
+import subprocess
 import tkinter as tk
 import cv2
 import util
@@ -44,7 +45,20 @@ class App:
 
 
     def login(self):
-        pass
+        unknown_img_path= './.tmp.jpg'
+        cv2.imwrite(unknown_img_path, self.most_recent_capture_arr)
+
+        output = str(subprocess.check_output(['face_recognition', self.db_dir, unknown_img_path]))
+        name= output.split(',')[1][:-3]
+
+
+        if name in ['unknown_person', 'no_persons_found']:
+            util.msg_box('opps!!.. ', 'unknown user. please register new user or try again.')
+        else:
+            util.msg_box('welcome back!!', 'welcome, {}'.format(name))
+
+
+        os.remove(unknown_img_path)
     def register_new_user(self):
         self.register_new_user_window = tk.Toplevel(self.main_window)
         self.register_new_user_window.geometry("400x300")
@@ -86,7 +100,9 @@ class App:
 
         cv2.imwrite(os.path.join(self.db_dir,'{}.jpg'.format(name)),self.register_new_user_window_capture)
 
+        util.msg_box('success!', 'user registered successfully')
 
+        self.register_new_user_window.destroy()
 
 
 
